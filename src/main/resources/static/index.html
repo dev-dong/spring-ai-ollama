@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Code Analyzer (Streaming)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+
+        .upload-area:hover {
+            background: #f8f9ff;
+            border-color: #764ba2;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .response-area {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 10px;
+            white-space: pre-wrap;
+            line-height: 1.8;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            min-height: 100px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .file-list {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 5px;
+        }
+
+        .file-item {
+            padding: 5px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 3px;
+            font-size: 13px;
+        }
+
+        .loading {
+            text-align: center;
+            color: #667eea;
+            font-weight: bold;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .streaming {
+            border-left: 3px solid #667eea;
+            animation: borderPulse 1s infinite;
+        }
+
+        @keyframes borderPulse {
+            0%, 100% { border-color: #667eea; }
+            50% { border-color: #764ba2; }
+        }
+
+        .status {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        code {
+            background: #e8eaf6;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', monospace;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🤖 AI Code Analyzer</h1>
+    <div class="subtitle">✨ Streaming Mode - Real-time AI Response</div>
+
+    <div class="upload-area">
+        <p>📁 Java/Python 파일을 드래그하거나 클릭하여 선택하세요</p>
+        <input type="file" id="fileInput" multiple accept=".java,.py,.js,.ts,.jsx,.tsx,.go,.rs,.cpp,.c,.txt,.md,.json,.xml,.yml,.sql" style="margin-top: 20px;">
+    </div>
+
+    <div id="fileList" class="file-list" style="display: none;"></div>
+
+    <textarea id="message" placeholder="질문을 입력하세요. 예: '이 코드의 버그를 찾아주세요', '리팩토링 제안해주세요', 'N+1 문제가 있는지 확인해주세요'"></textarea>
+
+    <button id="analyzeBtn">분석 시작 🚀</button>
+
+    <div id="response" class="response-area" style="display: none;"></div>
+    <div id="status" class="status"></div>
+</div>
+
+<script>
+    const fileInput = document.getElementById('fileInput');
+    const fileList = document.getElementById('fileList');
+    const message = document.getElementById('message');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const response = document.getElementById('response');
+    const status = document.getElementById('status');
+
+    let selectedFiles = [];
+
+    // 파일 선택 이벤트
+    fileInput.addEventListener('change', (e) => {
+        selectedFiles = Array.from(e.target.files);
+        displayFileList();
+    });
+
+    // 파일 목록 표시
+    function displayFileList() {
+        if (selectedFiles.length === 0) {
+            fileList.style.display = 'none';
+            return;
+        }
+
+        fileList.style.display = 'block';
+        fileList.innerHTML = '<strong>선택된 파일:</strong><br>' +
+            selectedFiles.map(f =>
+                `<div class="file-item">📄 ${f.name} (${formatBytes(f.size)})</div>`
+            ).join('');
+    }
+
+    // 파일 크기 포맷팅
+    function formatBytes(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    }
+
+    // 분석 버튼 클릭
+    analyzeBtn.addEventListener('click', async () => {
+        const messageText = message.value.trim();
+
+        if (!messageText) {
+            alert('질문을 입력해주세요!');
+            return;
+        }
+
+        // 파일 첨부 여부에 따라 다른 엔드포인트 사용
+        const hasFiles = selectedFiles.length > 0;
+
+        // UI 업데이트
+        analyzeBtn.disabled = true;
+        response.style.display = 'block';
+        response.className = 'response-area streaming';
+        response.innerHTML = '';
+        status.textContent = '🔄 AI가 실시간으로 응답 생성 중...';
+
+        try {
+            if (hasFiles) {
+                // 파일 첨부 스트리밍
+                await streamWithFiles(messageText);
+            } else {
+                // 일반 스트리밍
+                await streamChat(messageText);
+            }
+
+            response.className = 'response-area';
+            status.textContent = '✅ 완료!';
+
+        } catch (error) {
+            response.className = 'response-area';
+            response.innerHTML = `<div style="color: red;">❌ 오류 발생: ${error.message}</div>`;
+            status.textContent = '❌ 에러 발생';
+        } finally {
+            analyzeBtn.disabled = false;
+        }
+    });
+
+    // 일반 채팅 스트리밍
+    async function streamChat(messageText) {
+        const res = await fetch('http://localhost:8080/api/chat/stream', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message: messageText })
+        });
+
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+
+        await processStream(res.body);
+    }
+
+    // 파일 첨부 스트리밍
+    async function streamWithFiles(messageText) {
+        const formData = new FormData();
+        formData.append('message', messageText);
+        selectedFiles.forEach(file => {
+            formData.append('files', file);
+        });
+
+        const res = await fetch('http://localhost:8080/api/chat/stream/with-files', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+
+        await processStream(res.body);
+    }
+
+    // 스트림 처리 (공통)
+    async function processStream(stream) {
+        const reader = stream.getReader();
+        const decoder = new TextDecoder();
+
+        while (true) {
+            const { done, value } = await reader.read();
+
+            if (done) {
+                break;
+            }
+
+            const chunk = decoder.decode(value, { stream: true });
+            response.innerHTML += chunk;
+
+            // 자동 스크롤 (맨 아래로)
+            response.scrollTop = response.scrollHeight;
+        }
+    }
+
+    // Enter 키로 전송 (Shift+Enter는 줄바꿈)
+    message.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            analyzeBtn.click();
+        }
+    });
+</script>
+</body>
+</html>
