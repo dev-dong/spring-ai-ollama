@@ -83,8 +83,9 @@ public class ChatController {
                         List<String> sentences = new ArrayList<>();
                         int cut;
                         while ((cut = findSentenceBoundary(buffer)) >= 0) {
-                            String sentence = buffer.substring(0, cut + 1).trim();
+                            String sentence = buffer.substring(0, cut + 1);
                             buffer.delete(0, cut + 1);
+                            log.info("sentence extracted: {}", sentence);
 
                             if (!sentence.isBlank()) {
                                 sentences.add(sentence);
@@ -95,7 +96,7 @@ public class ChatController {
                     })
                     .concatWith(Flux.defer(() -> {
                         log.info("내 응답 완료!");
-                        String rest = bufferRef.get().toString().trim();
+                        String rest = bufferRef.get().toString();
                         return rest.isBlank() ? Flux.empty() : Flux.just(rest);
                     }));
         });
