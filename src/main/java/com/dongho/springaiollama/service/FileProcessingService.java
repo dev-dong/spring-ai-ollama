@@ -1,5 +1,7 @@
 package com.dongho.springaiollama.service;
 
+import com.dongho.springaiollama.validator.FileValidator;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.stereotype.Service;
@@ -11,9 +13,10 @@ import java.util.List;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class FileProcessingService {
 
-    private static final List<String> TEXT_EXTENSIONS = List.of(".py", ".js", ".java");
+    private final FileValidator validator;
 
     public UserMessage createUserMessageWithFiles(String messageText, List<MultipartFile> files) {
         if (files == null || files.isEmpty()) {
@@ -42,11 +45,7 @@ public class FileProcessingService {
 
         for (MultipartFile file : files) {
             String filename = file.getOriginalFilename();
-            boolean isTextFile = TEXT_EXTENSIONS.stream().anyMatch(ext -> filename != null && filename.toLowerCase().endsWith(ext));
-            if (!isTextFile) {
-                continue;
-            }
-
+            if (!validator.isSupportedExtension(filename)) continue;
             String fileContent = new String(file.getBytes(), StandardCharsets.UTF_8);
             builder.append("\n\n=== ").append(filename).append("===\n");
             builder.append(fileContent);

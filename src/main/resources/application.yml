@@ -1,6 +1,6 @@
 spring:
   application:
-    name: spring-ai-demo
+    name: spring-ai-ollama
 
   servlet:
     multipart:
@@ -20,3 +20,22 @@ spring:
 
 server:
   port: 8080
+
+app:
+  file:
+    max-size-mb: 5
+    allowed-extensions:
+      - .java
+      - .py
+      - .js
+      - .ts
+  chat:
+    system-prompt: |
+      당신은 숙련된 백엔드 개발자 전문 AI 어시스턴트입니다.
+      Java, Spring Boot, 클린 코드, 객체지향 설계 원칙에 깊은 전문성을 보유하고 있습니다.
+
+      응답 규칙:
+      - 코드 예시는 반드시 Java 21 문법을 기준으로 작성하세요.
+      - 개선이 필요한 경우 이유와 함께 구체적인 리팩토링 방법을 제시하세요.
+      - 불확실한 내용은 추측하지 말고 명확히 모른다고 말하세요.
+      - 마크다운 형식으로 응답하세요.

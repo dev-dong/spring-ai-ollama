@@ -3,886 +3,896 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎀 AI Code Analyzer - Cute Edition</title>
+    <title>⚡ AI Code Analyzer - Dark Edition</title>
 
-    <!-- Marked.js - 마크다운 파싱 -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-    <!-- Highlight.js - 코드 하이라이팅 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/java.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
 
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+
     <style>
-        :root{
-            --bg-gradient-1: #FFE5F1;
-            --bg-gradient-2: #FFF4E3;
-            --bg-gradient-3: #E8F5FF;
+        :root {
+            --bg-base:     #0D0F14;
+            --bg-surface:  #141720;
+            --bg-elevated: #1C2030;
+            --bg-hover:    #242840;
 
-            --card-bg: #FFFFFF;
-            --card-shadow: rgba(255, 182, 218, 0.3);
-            --card-border: rgba(255, 182, 218, 0.4);
+            --border-dim:    rgba(255,255,255,0.06);
+            --border-normal: rgba(255,255,255,0.10);
+            --border-accent: rgba(82, 217, 156, 0.35);
 
-            --primary-pink: #FF6B9D;
-            --primary-purple: #C084FC;
-            --primary-mint: #86EFAC;
-            --primary-yellow: #FDE047;
-            --primary-blue: #60A5FA;
+            --accent-green:  #52D99C;
+            --accent-cyan:   #38BDF8;
+            --accent-purple: #A78BFA;
+            --accent-orange: #FB923C;
+            --accent-red:    #F87171;
 
-            --text-main: #4A4A4A;
-            --text-light: #8B8B8B;
-            --text-dark: #2D2D2D;
+            --text-primary:   #E2E8F0;
+            --text-secondary: #8892A4;
+            --text-dim:       #4A5568;
 
-            --success: #10B981;
-            --error: #EF4444;
+            --glow-green:  rgba(82, 217, 156, 0.15);
+            --glow-cyan:   rgba(56, 189, 248, 0.15);
+            --glow-purple: rgba(167, 139, 250, 0.15);
 
-            --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-            --sans: 'Segoe UI', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+            --mono: 'JetBrains Mono', ui-monospace, monospace;
+            --sans: 'Syne', 'Apple SD Gothic Neo', sans-serif;
+
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        body{
+        html { scroll-behavior: smooth; }
+
+        body {
             font-family: var(--sans);
-            color: var(--text-main);
+            background: var(--bg-base);
+            color: var(--text-primary);
             min-height: 100vh;
             padding: 40px 20px;
-            background:
-                    radial-gradient(circle at 20% 20%, rgba(255, 182, 218, 0.25), transparent 50%),
-                    radial-gradient(circle at 80% 80%, rgba(192, 132, 252, 0.2), transparent 50%),
-                    radial-gradient(circle at 50% 50%, rgba(134, 239, 172, 0.15), transparent 70%),
-                    linear-gradient(135deg, var(--bg-gradient-1) 0%, var(--bg-gradient-2) 50%, var(--bg-gradient-3) 100%);
-            background-attachment: fixed;
-        }
-
-        /* 떠다니는 별 애니메이션 */
-        body::before,
-        body::after {
-            content: '✨';
-            position: fixed;
-            font-size: 24px;
-            opacity: 0.6;
-            animation: float 6s ease-in-out infinite;
-            pointer-events: none;
-        }
-
-        body::before {
-            top: 10%;
-            left: 15%;
-            animation-delay: 0s;
-        }
-
-        body::after {
-            top: 70%;
-            right: 10%;
-            animation-delay: 3s;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(180deg); }
-        }
-
-        .container{
-            max-width: 900px;
-            margin: 0 auto;
-            border-radius: 30px;
-            background: var(--card-bg);
-            border: 3px solid var(--card-border);
-            box-shadow:
-                    0 20px 60px var(--card-shadow),
-                    0 0 0 1px rgba(255, 255, 255, 0.9) inset;
-            padding: 45px 40px;
             position: relative;
-            overflow: hidden;
-            animation: slideIn 0.6s ease-out;
+            overflow-x: hidden;
         }
 
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(30px) scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+        /* 배경 글로우 레이어 */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                    radial-gradient(ellipse 60% 50% at 10% 10%, rgba(82,217,156,0.06) 0%, transparent 60%),
+                    radial-gradient(ellipse 50% 60% at 90% 90%, rgba(167,139,250,0.06) 0%, transparent 60%),
+                    radial-gradient(ellipse 40% 40% at 50% 0%,  rgba(56,189,248,0.04) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
         }
 
-        /* 귀여운 배경 장식 */
-        .container::before {
-            content: '🌸';
-            position: absolute;
-            top: 20px;
-            right: 30px;
-            font-size: 48px;
-            opacity: 0.3;
-            animation: wiggle 3s ease-in-out infinite;
+        /* 스캔라인 텍스처 */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0,0,0,0.08) 2px,
+                    rgba(0,0,0,0.08) 4px
+            );
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.4;
         }
 
-        .container::after {
-            content: '💖';
-            position: absolute;
-            bottom: 20px;
-            left: 30px;
-            font-size: 36px;
-            opacity: 0.3;
-            animation: pulse 2s ease-in-out infinite;
+        /* 떠다니는 코드 파티클 */
+        .particle {
+            position: fixed;
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--accent-green);
+            opacity: 0;
+            pointer-events: none;
+            animation: particleFall linear infinite;
+            z-index: 0;
         }
 
-        @keyframes wiggle {
-            0%, 100% { transform: rotate(-5deg); }
-            50% { transform: rotate(5deg); }
+        @keyframes particleFall {
+            0%   { opacity: 0; transform: translateY(-20px); }
+            10%  { opacity: 0.4; }
+            90%  { opacity: 0.2; }
+            100% { opacity: 0; transform: translateY(100vh); }
         }
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+        .container {
+            max-width: 920px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+            animation: containerIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
 
-        h1{
+        @keyframes containerIn {
+            from { opacity: 0; transform: translateY(24px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 헤더 */
+        .header {
             text-align: center;
-            letter-spacing: -0.02em;
-            font-size: 36px;
-            margin-bottom: 8px;
-            line-height: 1.2;
-            background: linear-gradient(135deg, var(--primary-pink), var(--primary-purple), var(--primary-mint));
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--mono);
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--accent-green);
+            background: rgba(82,217,156,0.1);
+            border: 1px solid rgba(82,217,156,0.25);
+            border-radius: 100px;
+            padding: 5px 14px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 18px;
+            animation: badgePulse 3s ease-in-out infinite;
+        }
+
+        @keyframes badgePulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(82,217,156,0.15); }
+            50%       { box-shadow: 0 0 0 8px rgba(82,217,156,0); }
+        }
+
+        .badge-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            animation: dotBlink 1.5s ease-in-out infinite;
+        }
+
+        @keyframes dotBlink {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.3; }
+        }
+
+        h1 {
+            font-family: var(--sans);
+            font-size: 42px;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            margin-bottom: 10px;
+        }
+
+        .h1-line1 { color: var(--text-primary); }
+        .h1-line2 {
+            background: linear-gradient(90deg, var(--accent-green), var(--accent-cyan), var(--accent-purple));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            font-weight: 900;
-            text-shadow: 0 2px 10px rgba(255, 107, 157, 0.2);
-            animation: rainbow 3s ease-in-out infinite;
+            animation: gradientShift 4s ease-in-out infinite;
+            background-size: 200% 100%;
         }
 
-        @keyframes rainbow {
-            0%, 100% { filter: hue-rotate(0deg); }
-            50% { filter: hue-rotate(20deg); }
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50%       { background-position: 100% 50%; }
         }
 
-        .subtitle{
-            text-align: center;
-            color: var(--text-light);
-            margin-bottom: 35px;
-            font-size: 14px;
-            font-weight: 600;
+        .subtitle {
+            font-family: var(--mono);
+            font-size: 13px;
+            color: var(--text-secondary);
+            letter-spacing: 0.02em;
         }
 
-        .upload-area{
-            border: 3px dashed var(--primary-pink);
-            background: linear-gradient(135deg,
-            rgba(255, 107, 157, 0.05),
-            rgba(192, 132, 252, 0.05));
-            border-radius: 24px;
-            padding: 35px 25px;
-            text-align: center;
-            margin-bottom: 20px;
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            cursor: pointer;
+        .subtitle span { color: var(--accent-cyan); }
+
+        /* 메인 카드 */
+        .card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-normal);
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            margin-bottom: 16px;
             position: relative;
             overflow: hidden;
+            transition: border-color 0.3s ease;
         }
 
-        .upload-area::before {
+        .card::before {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(
-                    45deg,
-                    transparent 30%,
-                    rgba(255, 255, 255, 0.3) 50%,
-                    transparent 70%
-            );
-            transform: rotate(45deg);
-            transition: all 0.6s;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-green), transparent);
+            opacity: 0.5;
         }
 
-        .upload-area:hover::before {
-            left: 100%;
+        /* 업로드 영역 */
+        .upload-area {
+            border: 1.5px dashed rgba(82,217,156,0.25);
+            background: rgba(82,217,156,0.03);
+            border-radius: var(--radius-lg);
+            padding: 30px 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 16px;
         }
 
-        .upload-area p{
-            color: var(--text-main);
-            font-size: 15px;
-            font-weight: 600;
+        .upload-area::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent 40%, rgba(82,217,156,0.08) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .upload-area:hover {
+            border-color: var(--accent-green);
+            background: rgba(82,217,156,0.06);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(82,217,156,0.12), 0 0 0 1px rgba(82,217,156,0.1);
+        }
+
+        .upload-area:hover::after { opacity: 1; }
+        .upload-area:active { transform: translateY(0) scale(0.99); }
+
+        .upload-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+            display: block;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50%       { transform: translateY(-6px); }
+        }
+
+        .upload-area p {
+            font-family: var(--mono);
+            font-size: 13px;
+            color: var(--text-secondary);
             position: relative;
             z-index: 1;
         }
 
-        .upload-area:hover{
-            transform: translateY(-5px) scale(1.02);
-            border-color: var(--primary-purple);
-            background: linear-gradient(135deg,
-            rgba(255, 107, 157, 0.1),
-            rgba(192, 132, 252, 0.1));
-            box-shadow:
-                    0 10px 30px rgba(255, 107, 157, 0.3),
-                    0 0 20px rgba(192, 132, 252, 0.2);
+        .upload-area p strong { color: var(--accent-green); }
+
+        /* 파일 목록 */
+        .file-list {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-dim);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 16px;
         }
 
-        .upload-area:active {
-            transform: translateY(-2px) scale(0.98);
+        .file-list-title {
+            font-family: var(--mono);
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        textarea{
+        .file-list-title::before {
+            content: '//';
+            color: var(--text-dim);
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            margin: 6px 0;
+            border-radius: var(--radius-sm);
+            background: var(--bg-surface);
+            border: 1px solid var(--border-dim);
+            font-family: var(--mono);
+            font-size: 13px;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+            animation: slideInLeft 0.3s ease-out backwards;
+        }
+
+        .file-item:nth-child(2) { animation-delay: 0.05s; }
+        .file-item:nth-child(3) { animation-delay: 0.10s; }
+        .file-item:nth-child(4) { animation-delay: 0.15s; }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-16px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+
+        .file-item:hover {
+            border-color: rgba(82,217,156,0.3);
+            background: var(--bg-hover);
+            transform: translateX(4px);
+        }
+
+        .file-item-name { display: flex; align-items: center; gap: 8px; }
+        .file-item-name::before { content: '📄'; font-size: 14px; }
+        .file-item-size {
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+
+        /* 텍스트 입력 */
+        .input-wrapper {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .input-label {
+            font-family: var(--mono);
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-dim);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .input-label::before { content: '>'; color: var(--accent-green); }
+
+        textarea {
             width: 100%;
-            min-height: 140px;
-            padding: 18px 20px;
-            border-radius: 20px;
-            border: 2px solid var(--card-border);
-            background: linear-gradient(135deg, #FFFFFF, #FEFAFF);
-            color: var(--text-main);
+            min-height: 120px;
+            padding: 16px 18px;
+            border-radius: var(--radius-md);
+            border: 1.5px solid var(--border-normal);
+            background: var(--bg-elevated);
+            color: var(--text-primary);
             outline: none;
-            font-size: 15px;
+            font-family: var(--mono);
+            font-size: 14px;
             line-height: 1.7;
             resize: vertical;
             transition: all 0.3s ease;
-            font-family: var(--sans);
         }
 
-        textarea::placeholder{
-            color: var(--text-light);
-        }
+        textarea::placeholder { color: var(--text-dim); }
 
-        textarea:focus{
-            border-color: var(--primary-pink);
+        textarea:focus {
+            border-color: var(--accent-green);
             box-shadow:
-                    0 0 0 4px rgba(255, 107, 157, 0.15),
-                    0 8px 25px rgba(255, 107, 157, 0.2);
-            background: #FFFFFF;
-            transform: translateY(-2px);
+                    0 0 0 3px rgba(82,217,156,0.08),
+                    0 8px 24px rgba(0,0,0,0.3);
+            background: rgba(28, 32, 48, 0.9);
         }
 
-        button{
+        /* 버튼 */
+        .btn-wrapper {
+            position: relative;
+        }
+
+        button {
             width: 100%;
-            margin-top: 18px;
-            padding: 16px 20px;
+            padding: 15px 24px;
             border: 0;
-            border-radius: 20px;
-            color: #FFFFFF;
-            font-weight: 800;
-            font-size: 16px;
-            letter-spacing: 0.5px;
+            border-radius: var(--radius-md);
+            color: var(--bg-base);
+            font-family: var(--mono);
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
             cursor: pointer;
-            background: linear-gradient(135deg, var(--primary-pink), var(--primary-purple));
-            box-shadow:
-                    0 10px 30px rgba(255, 107, 157, 0.4),
-                    0 0 20px rgba(192, 132, 252, 0.3);
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            background: var(--accent-green);
             position: relative;
             overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         button::before {
             content: '';
             position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
         }
 
-        button:hover::before {
-            width: 300px;
-            height: 300px;
+        button:hover:not(:disabled)::before { left: 100%; }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(82,217,156,0.4), 0 0 60px rgba(82,217,156,0.2);
+            background: #6EE7B7;
         }
 
-        button:hover:not(:disabled){
-            transform: translateY(-3px) scale(1.02);
-            box-shadow:
-                    0 15px 40px rgba(255, 107, 157, 0.5),
-                    0 0 30px rgba(192, 132, 252, 0.4);
+        button:active:not(:disabled) {
+            transform: translateY(0) scale(0.99);
         }
 
-        button:active:not(:disabled){
-            transform: translateY(0px) scale(0.98);
-        }
-
-        button:disabled{
-            opacity: 0.6;
+        button:disabled {
+            opacity: 0.5;
             cursor: not-allowed;
-            animation: shake 0.5s;
+            background: var(--text-dim);
+            color: var(--text-secondary);
         }
 
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-
-        .file-list{
-            display: block;
-            margin-top: 15px;
-            padding: 20px;
-            border-radius: 20px;
-            border: 2px solid var(--card-border);
-            background: linear-gradient(135deg,
-            rgba(255, 107, 157, 0.03),
-            rgba(134, 239, 172, 0.03));
-        }
-
-        .file-list strong{
-            display: block;
-            margin-bottom: 12px;
-            color: var(--primary-pink);
-            font-size: 13px;
-            font-weight: 800;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-        }
-
-        .file-item{
-            padding: 14px 18px;
-            margin: 10px 0;
-            border-radius: 16px;
-            border: 2px solid rgba(255, 107, 157, 0.2);
-            background: #FFFFFF;
-            color: var(--text-main);
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            transition: all 0.3s ease;
-            animation: slideInRight 0.4s ease-out backwards;
-        }
-
-        .file-item:nth-child(1) { animation-delay: 0.1s; }
-        .file-item:nth-child(2) { animation-delay: 0.2s; }
-        .file-item:nth-child(3) { animation-delay: 0.3s; }
-
-        @keyframes slideInRight {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .file-item:hover {
-            transform: translateX(5px);
-            border-color: var(--primary-purple);
-            box-shadow: 0 5px 15px rgba(192, 132, 252, 0.2);
-        }
-
-        .file-item span{
-            color: var(--text-light);
-            font-size: 13px;
-        }
-
-        .response-area{
-            margin-top: 25px;
-            padding: 25px;
-            border-radius: 20px;
-            border: 2px solid var(--card-border);
-            background: linear-gradient(135deg, #FFFFFF, #FFFBFE);
+        /* 응답 영역 */
+        .response-area {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-normal);
+            border-radius: var(--radius-xl);
+            padding: 28px 32px;
             min-height: 150px;
-            max-height: 650px;
+            max-height: 680px;
             overflow-y: auto;
-            white-space: normal;
-            word-wrap: break-word;
             line-height: 1.85;
             font-size: 15px;
-            animation: fadeIn 0.5s ease-out;
+            animation: fadeUp 0.4s ease-out;
+            position: relative;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
-        .streaming{
-            border-left: 5px solid var(--primary-pink);
-            box-shadow:
-                    inset 0 0 0 1px rgba(255, 107, 157, 0.2),
-                    0 0 20px rgba(255, 107, 157, 0.3);
-            animation: streamPulse 1.5s ease-in-out infinite;
+        .response-area::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+            opacity: 0.4;
         }
 
-        @keyframes streamPulse{
-            0%, 100% {
-                border-left-color: var(--primary-pink);
-                box-shadow:
-                        inset 0 0 0 1px rgba(255, 107, 157, 0.2),
-                        0 0 20px rgba(255, 107, 157, 0.3);
-            }
-            50% {
-                border-left-color: var(--primary-purple);
-                box-shadow:
-                        inset 0 0 0 1px rgba(192, 132, 252, 0.2),
-                        0 0 20px rgba(192, 132, 252, 0.3);
-            }
+        .streaming {
+            border-color: rgba(82,217,156,0.3);
+            animation: fadeUp 0.4s ease-out, streamGlow 2s ease-in-out infinite;
         }
 
-        .status{
+        @keyframes streamGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(82,217,156,0.08); }
+            50%       { box-shadow: 0 0 40px rgba(82,217,156,0.15); }
+        }
+
+        /* 상태 텍스트 */
+        .status {
             text-align: center;
-            margin-top: 15px;
-            color: var(--text-light);
-            font-size: 13px;
-            font-weight: 700;
+            margin-top: 12px;
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--text-dim);
+            letter-spacing: 0.05em;
         }
 
-        .typing-cursor{
+        /* 타이핑 커서 */
+        .typing-cursor {
             display: inline-block;
-            width: 12px;
+            width: 10px;
             height: 18px;
-            border-radius: 4px;
-            background: linear-gradient(135deg, var(--primary-pink), var(--primary-purple));
-            vertical-align: baseline;
-            animation: blink 1s infinite, bounce 0.5s ease-in-out infinite alternate;
+            background: var(--accent-green);
+            border-radius: 2px;
+            vertical-align: text-bottom;
+            animation: cursorBlink 1s step-end infinite;
+            box-shadow: 0 0 12px rgba(82,217,156,0.6);
         }
 
-        @keyframes blink{
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0; }
+        @keyframes cursorBlink {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0; }
         }
 
-        @keyframes bounce {
-            from { transform: translateY(0); }
-            to { transform: translateY(-3px); }
-        }
-
-        /* ---------- 마크다운 스타일링 ---------- */
-
+        /* ---- 마크다운 스타일 ---- */
         .response-area h1,
         .response-area h2,
         .response-area h3,
-        .response-area h4{
+        .response-area h4 {
             margin-top: 1.8em;
-            margin-bottom: 0.8em;
+            margin-bottom: 0.7em;
             line-height: 1.3;
-            letter-spacing: -0.01em;
-            color: var(--text-dark);
+            font-family: var(--sans);
         }
 
-        .response-area h1{
-            font-size: 1.9em;
-            padding-bottom: 0.5em;
-            border-bottom: 3px solid rgba(255, 107, 157, 0.3);
-            background: linear-gradient(135deg, var(--primary-pink), var(--primary-purple));
+        .response-area h1 {
+            font-size: 1.8em;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-normal);
+            padding-bottom: 0.4em;
+            background: linear-gradient(90deg, var(--accent-green), var(--accent-cyan));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
-        .response-area h2{
-            font-size: 1.5em;
-            padding-bottom: 0.4em;
-            border-bottom: 2px solid rgba(192, 132, 252, 0.3);
-            color: var(--primary-purple);
+        .response-area h2 {
+            font-size: 1.4em;
+            color: var(--accent-cyan);
+            border-bottom: 1px solid var(--border-dim);
+            padding-bottom: 0.3em;
         }
 
-        .response-area h3{
-            font-size: 1.25em;
-            color: var(--primary-pink);
+        .response-area h3 {
+            font-size: 1.15em;
+            color: var(--accent-purple);
         }
 
-        .response-area h4{
-            font-size: 1.1em;
-            color: var(--text-main);
+        .response-area h4 {
+            font-size: 1.0em;
+            color: var(--accent-orange);
         }
 
-        .response-area p{
-            margin: 1em 0;
-            color: var(--text-main);
+        .response-area p {
+            margin: 0.9em 0;
+            color: var(--text-primary);
         }
 
-        .response-area strong{
-            color: var(--text-dark);
-            font-weight: 800;
+        .response-area strong {
+            color: var(--accent-green);
+            font-weight: 700;
         }
 
-        .response-area a{
-            color: var(--primary-pink);
+        .response-area em {
+            color: var(--accent-cyan);
+            font-style: italic;
+        }
+
+        .response-area a {
+            color: var(--accent-cyan);
             text-decoration: none;
-            border-bottom: 2px solid rgba(255, 107, 157, 0.3);
+            border-bottom: 1px solid rgba(56,189,248,0.3);
             transition: all 0.2s ease;
         }
 
-        .response-area a:hover{
-            border-bottom-color: var(--primary-pink);
-            background: rgba(255, 107, 157, 0.1);
+        .response-area a:hover {
+            border-bottom-color: var(--accent-cyan);
+            text-shadow: 0 0 8px rgba(56,189,248,0.5);
         }
 
         .response-area ul,
-        .response-area ol{
-            margin: 1em 0 1.2em 1.5em;
-            color: var(--text-main);
+        .response-area ol {
+            margin: 0.9em 0 1.1em 1.4em;
         }
 
-        .response-area li{
+        .response-area li {
             margin: 0.4em 0;
+            color: var(--text-primary);
             padding-left: 0.3em;
         }
 
         .response-area ul li::marker {
-            content: '🌸 ';
+            content: '▸ ';
+            color: var(--accent-green);
         }
 
-        .response-area code{
+        .response-area code {
             font-family: var(--mono);
-            font-size: 0.9em;
-            padding: 3px 10px;
-            border-radius: 12px;
-            background: rgba(255, 107, 157, 0.1);
-            border: 1px solid rgba(255, 107, 157, 0.2);
-            color: var(--primary-pink);
+            font-size: 0.88em;
+            padding: 2px 8px;
+            border-radius: 6px;
+            background: rgba(82,217,156,0.1);
+            border: 1px solid rgba(82,217,156,0.15);
+            color: var(--accent-green);
             font-weight: 600;
         }
 
-        .response-area pre{
-            margin: 1.3em 0;
+        .response-area pre {
+            margin: 1.2em 0;
             padding: 20px;
-            border-radius: 20px;
+            border-radius: var(--radius-md);
             overflow-x: auto;
-            border: 2px solid rgba(192, 132, 252, 0.2);
-            background: linear-gradient(135deg, #FAFAFA, #F8F9FF);
-            box-shadow: 0 5px 20px rgba(192, 132, 252, 0.15);
+            border: 1px solid var(--border-normal);
+            background: var(--bg-base) !important;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.3);
+            position: relative;
         }
 
-        .response-area pre code{
+        .response-area pre::before {
+            content: '● ● ●';
+            display: block;
+            color: var(--text-dim);
+            font-size: 10px;
+            letter-spacing: 4px;
+            margin-bottom: 12px;
+        }
+
+        .response-area pre code {
             background: transparent;
             border: 0;
             padding: 0;
-            color: var(--text-main);
+            color: var(--text-primary);
             line-height: 1.7;
-            font-size: 14px;
-            font-weight: normal;
+            font-size: 13.5px;
+            font-weight: 400;
         }
 
-        .response-area blockquote{
-            margin: 1.2em 0;
-            padding: 15px 20px;
-            border-radius: 16px;
-            border-left: 5px solid var(--primary-mint);
-            background: rgba(134, 239, 172, 0.1);
-            color: var(--text-main);
+        .response-area blockquote {
+            margin: 1.1em 0;
+            padding: 14px 18px;
+            border-radius: var(--radius-sm);
+            border-left: 3px solid var(--accent-cyan);
+            background: rgba(56,189,248,0.06);
+            color: var(--text-secondary);
+            font-style: italic;
         }
 
-        .response-area hr{
+        .response-area hr {
             border: 0;
-            height: 2px;
+            height: 1px;
             margin: 1.5em 0;
-            background: linear-gradient(
-                    90deg,
-                    transparent,
-                    rgba(255, 107, 157, 0.4),
-                    transparent
-            );
+            background: linear-gradient(90deg, transparent, var(--border-normal), transparent);
         }
 
-        .response-area table{
+        .response-area table {
             width: 100%;
             border-collapse: collapse;
-            margin: 1.4em 0;
-            border-radius: 16px;
+            margin: 1.3em 0;
+            border-radius: var(--radius-md);
             overflow: hidden;
-            border: 2px solid rgba(255, 107, 157, 0.2);
-            background: #FFFFFF;
+            border: 1px solid var(--border-normal);
+            font-family: var(--mono);
+            font-size: 13px;
         }
 
         .response-area th,
-        .response-area td{
-            padding: 14px 16px;
-            border-bottom: 1px solid rgba(255, 107, 157, 0.1);
+        .response-area td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-dim);
             text-align: left;
             vertical-align: top;
         }
 
-        .response-area th{
-            background: linear-gradient(135deg,
-            rgba(255, 107, 157, 0.15),
-            rgba(192, 132, 252, 0.15));
-            color: var(--text-dark);
-            font-weight: 800;
+        .response-area th {
+            background: rgba(82,217,156,0.08);
+            color: var(--accent-green);
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            font-size: 11px;
         }
 
-        .response-area tr:hover td{
-            background: rgba(255, 107, 157, 0.05);
-        }
+        .response-area tr:hover td { background: rgba(255,255,255,0.02); }
 
         /* 스크롤바 */
-        .response-area::-webkit-scrollbar {
-            width: 12px;
-        }
-
+        .response-area::-webkit-scrollbar { width: 8px; }
         .response-area::-webkit-scrollbar-track {
-            background: rgba(255, 107, 157, 0.1);
-            border-radius: 12px;
+            background: var(--bg-elevated);
+            border-radius: 8px;
         }
-
         .response-area::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, var(--primary-pink), var(--primary-purple));
-            border-radius: 12px;
-            border: 2px solid rgba(255, 255, 255, 0.5);
+            background: linear-gradient(180deg, var(--accent-green), var(--accent-cyan));
+            border-radius: 8px;
+            border: 2px solid var(--bg-elevated);
         }
 
-        .response-area::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(180deg,
-            rgba(255, 107, 157, 0.9),
-            rgba(192, 132, 252, 0.9));
-        }
-
-        /* 드래그 오버 효과 */
+        /* 드래그 오버 */
         .upload-area.drag-over {
-            border-color: var(--primary-mint);
-            background: rgba(134, 239, 172, 0.2);
-            transform: scale(1.05);
+            border-color: var(--accent-cyan);
+            background: rgba(56,189,248,0.08);
+            transform: scale(1.02);
+            box-shadow: 0 0 40px rgba(56,189,248,0.15);
         }
 
         /* 반응형 */
         @media (max-width: 768px) {
-            body {
-                padding: 20px 15px;
-            }
-
-            .container {
-                padding: 30px 25px;
-                border-radius: 25px;
-            }
-
-            h1 {
-                font-size: 28px;
-            }
-
-            .subtitle {
-                font-size: 13px;
-            }
+            body { padding: 20px 16px; }
+            h1 { font-size: 30px; }
+            .card { padding: 24px 20px; }
+            .response-area { padding: 20px; }
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <h1>🎀 AI Code Analyzer</h1>
-    <div class="subtitle">✨ Powered by qwen3-coder - 귀여운 코드 분석기 💕</div>
 
-    <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-        <p>📁 Java/Python 파일을 드래그하거나 클릭하여 선택하세요 🌸</p>
-        <input type="file" id="fileInput" multiple accept=".java,.py,.js,.ts,.jsx,.tsx,.go,.rs,.cpp,.c,.txt,.md,.json,.xml,.yml,.sql" style="display: none;">
+<!-- 코드 파티클 -->
+<div class="particle" style="left:5%;  animation-duration:12s; animation-delay:0s;">01</div>
+<div class="particle" style="left:15%; animation-duration:18s; animation-delay:2s;">{}</div>
+<div class="particle" style="left:28%; animation-duration:14s; animation-delay:5s;">//</div>
+<div class="particle" style="left:42%; animation-duration:20s; animation-delay:1s;">&lt;/&gt;</div>
+<div class="particle" style="left:58%; animation-duration:16s; animation-delay:7s;">fn</div>
+<div class="particle" style="left:72%; animation-duration:11s; animation-delay:3s;">[]</div>
+<div class="particle" style="left:85%; animation-duration:15s; animation-delay:9s;">=></div>
+<div class="particle" style="left:93%; animation-duration:22s; animation-delay:4s;">/*</div>
+
+<div class="container">
+
+    <!-- 헤더 -->
+    <div class="header">
+        <div class="header-badge">
+            <span class="badge-dot"></span>
+            Powered by qwen3-coder
+        </div>
+        <h1>
+            <span class="h1-line1">AI Code</span><br>
+            <span class="h1-line2">Analyzer</span>
+        </h1>
+        <p class="subtitle">
+            <span>// analyze</span> · debug · refactor · optimize
+        </p>
     </div>
 
-    <div id="fileList" class="file-list" style="display: none;"></div>
+    <!-- 업로드 & 입력 카드 -->
+    <div class="card">
 
-    <textarea id="message" placeholder="질문을 입력하세요 💬 예: '이 코드의 버그를 찾아주세요', '리팩토링 제안해주세요' 🚀"></textarea>
+        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+            <span class="upload-icon">⚡</span>
+            <p>
+                <strong>파일을 드롭하거나 클릭하여 선택</strong><br>
+                Java · Python · JS · TS · Go · Rust · C/C++ · SQL · JSON · YAML
+            </p>
+            <input type="file" id="fileInput" multiple
+                   accept=".java,.py,.js,.ts,.jsx,.tsx,.go,.rs,.cpp,.c,.txt,.md,.json,.xml,.yml,.sql"
+                   style="display:none;">
+        </div>
 
-    <button id="analyzeBtn">분석 시작 🎉</button>
+        <div id="fileList" class="file-list" style="display:none;"></div>
 
-    <div id="response" class="response-area" style="display: none;"></div>
+        <div class="input-wrapper">
+            <div class="input-label">query</div>
+            <textarea id="message" placeholder="// 질문을 입력하세요&#10;// 예: '이 코드의 버그를 찾아주세요'&#10;// 예: '리팩토링 제안해주세요'"></textarea>
+        </div>
+
+        <div class="btn-wrapper">
+            <button id="analyzeBtn">▶ RUN ANALYSIS</button>
+        </div>
+
+    </div>
+
+    <!-- 응답 영역 -->
+    <div id="response" class="response-area" style="display:none;"></div>
     <div id="status" class="status"></div>
+
 </div>
 
 <script>
-    // Marked.js 설정
     marked.setOptions({
         breaks: true,
         gfm: true,
         headerIds: false,
         mangle: false,
-        pedantic: false,
-        sanitize: false,
-        smartLists: true,
-        smartypants: false,
-        xhtml: false,
         highlight: function(code, lang) {
             if (lang && hljs.getLanguage(lang)) {
-                try {
-                    return hljs.highlight(code, { language: lang }).value;
-                } catch (err) {
-                    console.error('Highlight error:', err);
-                }
+                try { return hljs.highlight(code, { language: lang }).value; }
+                catch (e) {}
             }
             return hljs.highlightAuto(code).value;
         }
     });
 
-    const fileInput = document.getElementById('fileInput');
-    const fileList = document.getElementById('fileList');
-    const message = document.getElementById('message');
-    const analyzeBtn = document.getElementById('analyzeBtn');
-    const response = document.getElementById('response');
-    const status = document.getElementById('status');
+    const fileInput   = document.getElementById('fileInput');
+    const fileListEl  = document.getElementById('fileList');
+    const messageEl   = document.getElementById('message');
+    const analyzeBtn  = document.getElementById('analyzeBtn');
+    const responseEl  = document.getElementById('response');
+    const statusEl    = document.getElementById('status');
 
-    let selectedFiles = [];
-    let accumulatedText = '';
-    let renderTimeout = null;
+    let selectedFiles    = [];
+    let accumulatedText  = '';
+    let renderTimeout    = null;
+    let sseBuffer        = '';
 
-    // 파일 선택 이벤트
-    fileInput.addEventListener('change', (e) => {
+    fileInput.addEventListener('change', e => {
         selectedFiles = Array.from(e.target.files);
         displayFileList();
     });
 
-    // 파일 목록 표시
     function displayFileList() {
-        if (selectedFiles.length === 0) {
-            fileList.style.display = 'none';
-            return;
-        }
-
-        fileList.style.display = 'block';
-        fileList.innerHTML = '<strong>선택된 파일 💝</strong>' +
+        if (selectedFiles.length === 0) { fileListEl.style.display = 'none'; return; }
+        fileListEl.style.display = 'block';
+        fileListEl.innerHTML =
+            `<div class="file-list-title">attached files (${selectedFiles.length})</div>` +
             selectedFiles.map(f =>
-                `<div class="file-item">📄 ${f.name} <span>(${formatBytes(f.size)})</span></div>`
+                `<div class="file-item">
+                    <span class="file-item-name">${f.name}</span>
+                    <span class="file-item-size">${formatBytes(f.size)}</span>
+                 </div>`
             ).join('');
     }
 
-    // 파일 크기 포맷팅
     function formatBytes(bytes) {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        if (bytes === 0) return '0 B';
+        const sizes = ['B','KB','MB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(1024));
+        return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
     }
 
-    // 마크다운 렌더링 (디바운싱)
     function renderMarkdown() {
-        if (renderTimeout) {
-            clearTimeout(renderTimeout);
-        }
-
+        if (renderTimeout) clearTimeout(renderTimeout);
         renderTimeout = setTimeout(() => {
-            const rendered = marked.parse(accumulatedText);
-            response.innerHTML = rendered;
-
-            // 코드 하이라이팅 적용
-            response.querySelectorAll('pre code').forEach((block) => {
-                hljs.highlightElement(block);
-            });
-
-            // 자동 스크롤 (맨 아래로)
-            response.scrollTop = response.scrollHeight;
+            responseEl.innerHTML = marked.parse(accumulatedText);
+            responseEl.querySelectorAll('pre code').forEach(b => hljs.highlightElement(b));
+            responseEl.scrollTop = responseEl.scrollHeight;
         }, 50);
     }
 
-    // 최종 렌더링 (스트리밍 완료 후)
     function finalRender() {
-        if (renderTimeout) {
-            clearTimeout(renderTimeout);
-        }
-
-        const rendered = marked.parse(accumulatedText);
-        response.innerHTML = rendered;
-
-        // 코드 하이라이팅 적용
-        response.querySelectorAll('pre code').forEach((block) => {
-            hljs.highlightElement(block);
-        });
-
-        // 자동 스크롤 (맨 아래로)
-        response.scrollTop = response.scrollHeight;
+        if (renderTimeout) clearTimeout(renderTimeout);
+        responseEl.innerHTML = marked.parse(accumulatedText);
+        responseEl.querySelectorAll('pre code').forEach(b => hljs.highlightElement(b));
+        responseEl.scrollTop = responseEl.scrollHeight;
     }
 
-    // 분석 버튼 클릭
     analyzeBtn.addEventListener('click', async () => {
-        const messageText = message.value.trim();
+        const text = messageEl.value.trim();
+        if (!text) { alert('// query is required'); return; }
 
-        if (!messageText) {
-            alert('질문을 입력해주세요! 🎀');
-            return;
-        }
-
-        // 초기화
         accumulatedText = '';
-        const hasFiles = selectedFiles.length > 0;
-
-        // UI 업데이트
         analyzeBtn.disabled = true;
-        response.style.display = 'block';
-        response.className = 'response-area streaming';
-        response.innerHTML = '<span class="typing-cursor"></span>';
-        status.textContent = '🔄 AI가 열심히 분석 중이에요... 💕';
+        responseEl.style.display = 'block';
+        responseEl.className = 'response-area streaming';
+        responseEl.innerHTML = '<span class="typing-cursor"></span>';
+        statusEl.textContent = '// analyzing...';
 
         try {
-            if (hasFiles) {
-                await streamWithFiles(messageText);
-            } else {
-                await streamChat(messageText);
-            }
+            if (selectedFiles.length > 0) await streamWithFiles(text);
+            else await streamChat(text);
 
-            response.className = 'response-area';
-            status.textContent = '✅ 완료! 🎉';
-
-        } catch (error) {
-            response.className = 'response-area';
-            response.innerHTML = `<div style="color: #EF4444; padding: 20px; background: rgba(239, 68, 68, 0.1); border-radius: 16px; border: 2px solid rgba(239, 68, 68, 0.3);">
-                <strong>❌ 오류가 발생했어요 😢</strong><br>
-                ${error.message}
-            </div>`;
-            status.textContent = '❌ 에러 발생';
+            responseEl.className = 'response-area';
+            statusEl.textContent = '// done';
+        } catch (err) {
+            responseEl.className = 'response-area';
+            responseEl.innerHTML = `
+                <div style="color:var(--accent-red);padding:20px;background:rgba(248,113,113,0.08);
+                     border-radius:var(--radius-md);border:1px solid rgba(248,113,113,0.2);font-family:var(--mono);font-size:14px;">
+                    <strong>// error</strong><br>${err.message}
+                </div>`;
+            statusEl.textContent = '// error';
         } finally {
             analyzeBtn.disabled = false;
         }
     });
 
-    // 일반 채팅 스트리밍
-    async function streamChat(messageText) {
+    async function streamChat(text) {
         const res = await fetch('http://localhost:8080/api/chat/stream', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ message: messageText })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: text })
         });
-
-        if (!res.ok) {
-            throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-        }
-
+        if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
         await processStream(res.body);
     }
 
-    // 파일 첨부 스트리밍
-    async function streamWithFiles(messageText) {
-        const formData = new FormData();
-        formData.append('message', messageText);
-        selectedFiles.forEach(file => {
-            formData.append('files', file);
-        });
-
+    async function streamWithFiles(text) {
+        const fd = new FormData();
+        fd.append('message', text);
+        selectedFiles.forEach(f => fd.append('files', f));
         const res = await fetch('http://localhost:8080/api/chat/stream/with-files', {
-            method: 'POST',
-            body: formData
+            method: 'POST', body: fd
         });
-
-        if (!res.ok) {
-            throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-        }
-
+        if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
         await processStream(res.body);
     }
 
-    // 스트림 처리
     async function processStream(stream) {
-        const reader = stream.getReader();
+        const reader  = stream.getReader();
         const decoder = new TextDecoder();
-
         sseBuffer = '';
 
         while (true) {
             const { done, value } = await reader.read();
-
-            if (done) {
-                flushSseBuffer(true);
-                finalRender();
-                break;
-            }
-
+            if (done) { flushSseBuffer(true); finalRender(); break; }
             sseBuffer += decoder.decode(value, { stream: true });
             flushSseBuffer(false);
         }
@@ -890,73 +900,32 @@
 
     function flushSseBuffer(flushAll) {
         const events = sseBuffer.split(/\r?\n\r?\n/);
-
-        if (!flushAll) {
-            sseBuffer = events.pop();
-        } else {
-            sseBuffer = '';
-        }
+        sseBuffer = flushAll ? '' : events.pop();
 
         for (const evt of events) {
-            const lines = evt.split(/\r?\n/);
-
-            const dataLines = lines
+            const dataLines = evt.split(/\r?\n/)
                 .filter(l => l.startsWith('data:'))
                 .map(l => l.substring(5).replace(/^ /, ''));
-
-            if (dataLines.length === 0) continue;
-
-            const data = dataLines.join('\n');
-            accumulatedText += data;
-
+            if (!dataLines.length) continue;
+            accumulatedText += dataLines.join('\n');
             renderMarkdown();
         }
     }
 
-    // Enter 키로 전송 (Shift+Enter는 줄바꿈)
-    message.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            analyzeBtn.click();
-        }
+    messageEl.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); analyzeBtn.click(); }
     });
 
-    // 드래그 앤 드롭 지원
     const uploadArea = document.querySelector('.upload-area');
-
-    uploadArea.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        uploadArea.classList.add('drag-over');
-    });
-
-    uploadArea.addEventListener('dragleave', (e) => {
+    uploadArea.addEventListener('dragover',  e => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
+    uploadArea.addEventListener('dragleave', e => { e.preventDefault(); uploadArea.classList.remove('drag-over'); });
+    uploadArea.addEventListener('drop', e => {
         e.preventDefault();
         uploadArea.classList.remove('drag-over');
-    });
-
-    uploadArea.addEventListener('drop', (e) => {
-        e.preventDefault();
-        uploadArea.classList.remove('drag-over');
-
-        const files = Array.from(e.dataTransfer.files);
-        const validFiles = files.filter(f => {
-            const ext = f.name.toLowerCase();
-            return ext.endsWith('.java') || ext.endsWith('.py') ||
-                ext.endsWith('.js') || ext.endsWith('.ts') ||
-                ext.endsWith('.jsx') || ext.endsWith('.tsx') ||
-                ext.endsWith('.go') || ext.endsWith('.rs') ||
-                ext.endsWith('.cpp') || ext.endsWith('.c') ||
-                ext.endsWith('.txt') || ext.endsWith('.md') ||
-                ext.endsWith('.json') || ext.endsWith('.xml') ||
-                ext.endsWith('.yml') || ext.endsWith('.sql');
-        });
-
-        if (validFiles.length > 0) {
-            selectedFiles = validFiles;
-            displayFileList();
-        } else {
-            alert('지원하지 않는 파일 형식입니다 😢');
-        }
+        const exts = ['.java','.py','.js','.ts','.jsx','.tsx','.go','.rs','.cpp','.c','.txt','.md','.json','.xml','.yml','.sql'];
+        const valid = Array.from(e.dataTransfer.files).filter(f => exts.some(x => f.name.toLowerCase().endsWith(x)));
+        if (valid.length) { selectedFiles = valid; displayFileList(); }
+        else alert('// unsupported file type');
     });
 </script>
 </body>
